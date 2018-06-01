@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Http\Requests;
-use App\Message; 
+
+use App\Tasklist;    // add
 
 class TasklistsController extends Controller
 {
@@ -57,9 +57,11 @@ class TasklistsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+     
+     
     public function show($id)
     {
-         $tasklist = Tasklist::find($id);
+        $tasklist = Tasklist::find($id);
 
         return view('tasklists.show', [
             'tasklist' => $tasklist,
