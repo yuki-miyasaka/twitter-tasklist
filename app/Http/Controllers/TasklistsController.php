@@ -45,17 +45,15 @@ class TasklistsController extends Controller
      */
     public function store(Request $request)
     {
-         $this->validate($request, [
+        $this->validate($request, [
             'content' => 'required|max:191',
-            'status' => 'required|max:10',
         ]);
-        
-        $tasklist = new Tasklist;
-        $tasklist->content = $request->content;
-        $tasklist->status = $request->status;
-        $tasklist->save();
 
-        return redirect('/');
+        $request->user()->tasklists()->create([
+            'content' => $request->content,
+        ]);
+
+        return redirect()->back();
     }
 
     /**
@@ -118,11 +116,14 @@ class TasklistsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+     public function destroy($id)
     {
-        $tasklist = Tasklist::find($id);
-        $tasklist->delete();
+        $tasklist = \App\Tasklist::find($id);
 
-        return redirect('/');
+        if (\Auth::user()->id === $tasklist->user_id) {
+            $tasklist->delete();
+        }
+
+        return redirect()->back();
     }
 }
