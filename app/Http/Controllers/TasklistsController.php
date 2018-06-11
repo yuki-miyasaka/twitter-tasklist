@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-use App\Tasklist;    // add
+use App\Tasklist;
 
 class TasklistsController extends Controller
 {
@@ -15,13 +15,21 @@ class TasklistsController extends Controller
      */
     public function index()
     {
-        $tasklists = Tasklist::all();
+        $data = [];
+        if (\Auth::check()) {
+            $user = \Auth::user();
+            $tasklists = $user->tasklists()->orderBy('created_at', 'desc')->paginate(10);
 
-        return view('tasklists.index', [
-            'tasklists' => $tasklists,
-
-        ]);
-    }
+            $data = [
+                'user' => $user,
+                'tasklists' => $tasklists,
+            ];
+            $data += $this->counts($user);
+            return view('users.show', $data);
+        }else {
+            return view('welcome');
+        }
+}
 
     /**
      * Show the form for creating a new resource.
@@ -47,13 +55,15 @@ class TasklistsController extends Controller
     {
         $this->validate($request, [
             'content' => 'required|max:191',
+            'status' => 'required|max:10'
         ]);
 
         $request->user()->tasklists()->create([
             'content' => $request->content,
+            'status' => $request->status
         ]);
 
-        return redirect()->back();
+        return redirect('/');
     }
 
     /**
@@ -62,8 +72,6 @@ class TasklistsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-     
-     
     public function show($id)
     {
         $tasklist = Tasklist::find($id);
@@ -81,7 +89,7 @@ class TasklistsController extends Controller
      */
     public function edit($id)
     {
-         $tasklist = Tasklist::find($id);
+        $tasklist = Tasklist::find($id);
 
         return view('tasklists.edit', [
             'tasklist' => $tasklist,
@@ -95,16 +103,16 @@ class TasklistsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request,$id)
     {
-        $this->validate($request, [   
+        $this->validate($request, [
+            'status' => 'required|max:10',   // add
             'content' => 'required|max:191',
-            'status' => 'required|max:10',
         ]);
         
         $tasklist = Tasklist::find($id);
-        $tasklist->content = $request->content;
         $tasklist->status = $request->status;
+        $tasklist->content = $request->content;
         $tasklist->save();
 
         return redirect('/');
@@ -116,7 +124,7 @@ class TasklistsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-     public function destroy($id)
+    public function destroy($id)
     {
         $tasklist = \App\Tasklist::find($id);
 
@@ -125,5 +133,5 @@ class TasklistsController extends Controller
         }
 
         return redirect()->back();
-    }
+        }
 }

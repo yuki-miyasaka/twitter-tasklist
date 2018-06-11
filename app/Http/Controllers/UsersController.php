@@ -19,15 +19,9 @@ class UsersController extends Controller
     public function show($id)
     {
         $user = User::find($id);
-        $tasklists = $user->tasklists()->orderBy('created_at', 'desc')->paginate(10);
 
-        $data = [
+        return view('users.show', [
             'user' => $user,
-            'tasklists' => $tasklists,
-        ];
-
-        $data += $this->counts($user);
-
-        return view('users.show', $data);
+        ]);
     }
 }

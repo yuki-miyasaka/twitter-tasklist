@@ -1,15 +1,9 @@
+@extends('layouts.app')
 
 @section('content')
     @if (Auth::check())
-        <div class="row">
-            <aside class="col-md-4">
-            </aside>
-            <div class="col-xs-8">
-                @if (count($tasklists) > 0)
-                    @include('tasklists.tasklists', ['tasklists' => $tasklists])
-                @endif
-            </div>
-        </div>
+        <?php $user = Auth::user(); ?>
+        {{ $user->name }}
     @else
         <div class="center jumbotron">
             <div class="text-center">
